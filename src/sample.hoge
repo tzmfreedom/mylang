@@ -1,0 +1,9 @@
+a = 31
+b = 52
+c = 103
+
+echo(b)
+echo(c)
+echo(a)
+echo("aaaa")
+echo(fib(10))
