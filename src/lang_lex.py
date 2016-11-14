@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# ------------------------------------------------------------
-# calclex.py
-#
-# tokenizer for a simple expression evaluator for
-# numbers and +,-,*,/
-# ------------------------------------------------------------
 import ply.lex as lex
 import sys
 from lang_tokens import tokens
 
 
+states = (
+        ('string', 'exclusive'),
+        )
+
+reserved = {}
+
 # Regular expression rules for simple tokens
-t_ADD    = r'\+'
+t_ADD     = r'\+'
 t_SUB     = r'-'
 t_MUL     = r'\*'
 t_DIV     = r'/'
@@ -21,14 +21,9 @@ t_LP      = r'\('
 t_RP      = r'\)'
 t_ASSIGN  = r'='
 
-
-states = (
-        ('string', 'exclusive'),
-        )
-
-reserved = {
-    'set': 'SET',
-}
+# A string containing ignored characters (spaces and tabs)
+t_ignore = ' \t'
+t_string_ignore = ''
 
 
 def t_IDENT(t):
@@ -64,6 +59,7 @@ def t_NEWLINE(t):
     t.lexer.lineno += len(t.value)
     return t
 
+
 # Strings
 def t_begin_string(t):
     r'"'
@@ -79,9 +75,6 @@ def t_string_end(t):
     r'"'
     t.lexer.pop_state()
 
-# A string containing ignored characters (spaces and tabs)
-t_ignore = ' \t'
-
 
 # Error handling rule
 def t_error(t):
@@ -93,13 +86,11 @@ def t_string_error(t):
     print "Illegal character '%s'" % t.value[0]
     t.skip(1)
 
-t_string_ignore = ''
 
 # Build the lexer
 lexer = lex.lex()
-# lexer = lex.lex(debug=1)
 
-# # Tokenize
+# Tokenize
 if __name__ == "__main__":
     data = sys.stdin.read()
     lexer.input(data)

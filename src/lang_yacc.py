@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import ply.yacc as yacc
 import sys
 from lang_lex import lexer
@@ -14,7 +17,6 @@ variables = {}
 
 def echo(s):
     print("echo {0}".format(str(s)))
-    return str(s)
 
 
 def fib(n):
@@ -64,7 +66,6 @@ def p_assign(p):
     '''
     variables[p[1]] = p[3]
     p[0] = p[3]
-    print('{0}: Assign {1} = {2}'.format(p.lineno(1), p[1], p[3]))
 
 
 def p_statement(p):
@@ -122,19 +123,10 @@ def p_arg(p):
     p[0] = p[1]
 
 
-# def p_args(p):
-#     '''
-#     args : arg
-#          | args COMMA arg
-#     '''
-#     p[0] = p[1]
-
-
 def p_error(p):
     print("Syntax error at '%s'" % p)
 
 
 data = sys.stdin.read()
 yacc.yacc()
-# yacc.parse(data)
 yacc.parse(data, lexer=lexer)
