@@ -3,14 +3,16 @@
 
 import ply.lex as lex
 import sys
-from lang_tokens import tokens
+from tokens import tokens
 
 
 states = (
         ('string', 'exclusive'),
         )
 
-reserved = {}
+reserved = {
+    'if': 'IF',
+}
 
 # Regular expression rules for simple tokens
 t_ADD     = r'\+'
@@ -20,6 +22,14 @@ t_DIV     = r'/'
 t_LP      = r'\('
 t_RP      = r'\)'
 t_ASSIGN  = r'='
+t_COMMA   = r','
+t_LC      = r'{'
+t_RC      = r'}'
+t_EQUAL   = r'=='
+t_LTHAN   = r'\<'
+t_GTHAN   = r'\>'
+t_CONDITION_AND     = r'&&'
+t_CONDITION_OR      = r'\|\|'
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore = ' \t'

@@ -4,7 +4,10 @@
 import ply.yacc as yacc
 import sys
 from lang_lex import lexer
-from lang_tokens import tokens
+from tokens import tokens
+from statement import Statement
+from lang_enums import StatementType
+from condition import Condition
 
 
 # precedence = (
@@ -12,67 +15,49 @@ from lang_tokens import tokens
 #     ('left','MUL','DIV','LP','RP')
 # )
 
-variables = {}
+statementlist = []
 
-
-def echo(s):
-    print("echo {0}".format(str(s)))
-
-
-def fib(n):
-    if n < 2:
-        return n
-    return fib(n-1) + fib(n-2)
-
-
-functions = {
-    'echo': echo,
-    'fib': fib,
-}
-
-
-def p_lines(p):
+def p_translation_units(p):
     '''
-    lines : line NEWLINE
-          | lines line NEWLINE
+    translation_units : translation_unit NEWLINE
+                    | translation_units translation_unit NEWLINE
     '''
+    if len(p) == 3:
+        statementlist.append(p[1])
+    else:
+        statementlist.append(p[2])
 
 
-def p_line(p):
+def p_translation_unit(p):
     '''
-    line : call_func
-         | statement
+    translation_unit : statement
     '''
-
-
-def p_call_func(p):
-    '''
-    call_func : IDENT LP arg RP
-    '''
-    p[0] = functions[p[1]](p[3])
-    # print('{0}: {1}'.format(p.lineno(1), p[0]))
-
-
-def p_ident(p):
-    '''
-    ident : IDENT
-    '''
-    p[0] = variables[p[1]]
-
-
-def p_assign(p):
-    '''
-    statement : IDENT ASSIGN expression
-    '''
-    variables[p[1]] = p[3]
-    p[0] = p[3]
+    p[0] = p[1]
 
 
 def p_statement(p):
     '''
-    statement : expression
+    statement : assign_statement
+              | if_statement
+              | call_func
     '''
     p[0] = p[1]
+
+
+def p_call_func(p):
+    '''
+    call_func : IDENT LP args RP
+    '''
+    p[0] = Statement(StatementType.FUNCTION_CALL, p.lineno(1), {'function_name': p[1], 'args': p[3]})
+    # print('{0}: {1}'.format(p.lineno(1), p[0]))
+
+
+def p_assign_statement(p):
+    '''
+    assign_statement : IDENT ASSIGN expression
+    '''
+    # variables[p[1]] = p[3]
+    p[0] = Statement(StatementType.ASSIGN, p.lineno(1), {'variable_name': p[1], 'expression': p[3]})
 
 
 def p_expression(p):
@@ -105,6 +90,52 @@ def p_term(p):
         p[0] = p[1]
 
 
+def p_statement_list(p):
+    '''
+    statement_list : statement NEWLINE
+                   | statement_list statement NEWLINE
+    '''
+    if len(p) == 3:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[2]]
+    
+
+def p_block(p):
+    '''
+    block : LC statement_list RC
+          | LC NEWLINE statement_list RC
+    '''
+    if len(p) == 4:
+        p[0] = p[2]
+    else:
+        p[0] = p[3]
+
+## Todo: Multiple condition
+def p_condition_statement(p):
+    '''
+    condition_statement : condition
+    '''
+    p[0] = p[1]
+
+
+def p_condition(p):
+    '''
+    condition : arg EQUAL arg
+              | arg LTHAN arg
+              | arg GTHAN arg
+              | arg NOT_EQUAL arg
+    '''
+    p[0] = Condition(p[1], p[2], p[3])
+
+
+def p_if(p):
+    '''
+    if_statement : IF LP condition_statement RP block
+    '''
+    p[0] = Statement(StatementType.IF, p.lineno(1), {'condition': p[3], 'statementlist': p[5]})
+
+
 def p_number(p):
     '''
     number : INT
@@ -118,9 +149,26 @@ def p_arg(p):
     arg : call_func
         | number
         | STRVALUE
-        | ident
     '''
     p[0] = p[1]
+
+
+def p_arg_ident(p):
+    '''
+    arg : IDENT
+    '''
+    p[0] = Statement(StatementType.VAR, p.lineno(1), {'variable_name': p[1]})
+
+
+def p_args(p):
+    '''
+    args : arg
+         | args COMMA arg
+    '''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[3]]
 
 
 def p_error(p):
@@ -130,3 +178,6 @@ def p_error(p):
 data = sys.stdin.read()
 yacc.yacc()
 yacc.parse(data, lexer=lexer)
+
+for statement in statementlist:
+    statement.eval()
