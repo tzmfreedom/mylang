@@ -22,4 +22,5 @@ tokens = (
    'LTHAN',
    'GTHAN',
    'NOT_EQUAL',
+   'FUNCTION',
 )

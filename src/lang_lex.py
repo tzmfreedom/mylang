@@ -12,6 +12,7 @@ states = (
 
 reserved = {
     'if': 'IF',
+    'function': 'FUNCTION'
 }
 
 # Regular expression rules for simple tokens

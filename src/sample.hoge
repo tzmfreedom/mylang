@@ -12,3 +12,12 @@ if (a > 30) {
    echo(fib(11))
    echo(fib(10))
 }
+
+function aaa (a, b) {
+   echo("ccccc")
+   echo("bbbb")
+   echo(a)
+   echo(b)
+}
+
+aaa(70, 100)

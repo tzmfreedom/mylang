@@ -8,6 +8,8 @@ from tokens import tokens
 from statement import Statement
 from lang_enums import StatementType
 from condition import Condition
+from basic_types import BasicType
+from function import Function
 
 
 # precedence = (
@@ -31,6 +33,7 @@ def p_translation_units(p):
 def p_translation_unit(p):
     '''
     translation_unit : statement
+                     | define_function
     '''
     p[0] = p[1]
 
@@ -47,10 +50,35 @@ def p_statement(p):
 def p_call_func(p):
     '''
     call_func : IDENT LP args RP
+              | IDENT LP RP
     '''
-    p[0] = Statement(StatementType.FUNCTION_CALL, p.lineno(1), {'function_name': p[1], 'args': p[3]})
+    if len(p) == 5:
+        p[0] = Statement(StatementType.FUNCTION_CALL, p.lineno(1), {'function_name': p[1], 'args': p[3]})
+    else:
+        p[0] = Statement(StatementType.FUNCTION_CALL, p.lineno(1), {'function_name': p[1], 'args': []})
     # print('{0}: {1}'.format(p.lineno(1), p[0]))
 
+
+def p_define_func(p):
+    '''
+    define_function : FUNCTION IDENT LP RP block
+                    | FUNCTION IDENT LP define_function_args RP block
+    '''
+    if len(p) == 6:
+        p[0] = Statement(StatementType.FUNCTION_DEFINE, p.lineno(1), {'function_name': p[2], 'function_args': [], 'statementlist': p[5]})
+    else:
+        p[0] = Statement(StatementType.FUNCTION_DEFINE, p.lineno(1), {'function_name': p[2], 'function_args': p[4], 'statementlist': p[6]})
+
+
+def p_define_func_args(p):
+    '''
+    define_function_args : IDENT
+                         | define_function_args COMMA IDENT
+    '''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[3]]
 
 def p_assign_statement(p):
     '''
@@ -141,14 +169,19 @@ def p_number(p):
     number : INT
            | DOUBLE
     '''
-    p[0] = p[1]
+    p[0] = BasicType(p[1])
 
+def p_string(p):
+    '''
+    string : STRVALUE
+    '''
+    p[0] = BasicType(p[1])
 
 def p_arg(p):
     '''
     arg : call_func
         | number
-        | STRVALUE
+        | string
     '''
     p[0] = p[1]
 
