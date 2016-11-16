@@ -24,17 +24,17 @@ Language written by python with PLY library.
 
 ## Todo
 
-- [ ] map declaration
+- [x] map declaration
 - [ ] get map value with key
 - [ ] set map value with key/value
 - [ ] del map value with key
-- [ ] list declaration
+- [x] list declaration
 - [ ] get list value with key
 - [ ] set list value with key/value
 - [ ] add list value with key/value
 - [ ] del list value with key
-- [ ] increment
-- [ ] decrement
+- [x] increment
+- [x] decrement
 - [ ] continue
 - [ ] break
 - [ ] exit

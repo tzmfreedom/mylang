@@ -2,23 +2,29 @@ a = 31
 b = 52
 c = 103
 
+/*
 echo(b)
 echo(c)
 echo(a)
 echo("aaaa")
 echo(fib(10))
 
+
 if (a > 30) {
    echo(fib(11))
    echo(fib(10))
 }
+*/
 
 function aaa (a, b, d) {
-   echo("ccccc")
-   echo("bbbb")
+
+    echo("ccccc")
+#   echo("bbbb")
+
    echo(a)
-   echo(b)
+#   echo(b)
    echo(c)
+
 }
 
 aaa(70, 100, 111)
@@ -35,3 +41,12 @@ loop (i : 3) {
   echo(i)
 }
 echo(i)
+a = 0
+echo(a)
+hoge = [a, b, c, d, 999]
+echo(hoge)
+
+a--
+a--
+echo("123")
+echo(a)

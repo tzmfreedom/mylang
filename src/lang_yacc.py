@@ -9,7 +9,6 @@ from statement import Statement
 from lang_enums import StatementType
 from condition import Condition
 from basic_types import BasicType
-from function import Function
 
 
 # precedence = (
@@ -21,8 +20,8 @@ statementlist = []
 
 def p_translation_units(p):
     '''
-    translation_units : translation_unit NEWLINE
-                    | translation_units translation_unit NEWLINE
+    translation_units : translation_unit newline
+                      | translation_units translation_unit newline
     '''
     if len(p) == 3:
         statementlist.append(p[1])
@@ -46,6 +45,19 @@ def p_statement(p):
               | call_func
     '''
     p[0] = p[1]
+
+def p_increment(p):
+    '''
+    assign_statement : IDENT INCREMENT
+    '''
+    p[0] = Statement(StatementType.ASSIGN, p.lineno(1), {'variable_name': p[1], 'type': 'increment'})
+
+
+def p_decrement(p):
+    '''
+    assign_statement : IDENT DECREMENT
+    '''
+    p[0] = Statement(StatementType.ASSIGN, p.lineno(1), {'variable_name': p[1], 'type': 'decrement'})
 
 
 def p_call_func(p):
@@ -103,9 +115,9 @@ def p_expression(p):
 
 def p_term(p):
     '''
-    term : number
-         | term MUL number
-         | term DIV number
+    term : primary_expression
+         | term MUL primary_expression
+         | term DIV primary_expression
     '''
     if len(p) == 4:
         p[0] = Statement(StatementType.EXPRESSION, p.linno(2), {'left': p[1], 'right': p[3], 'op': p[2]})
@@ -113,22 +125,24 @@ def p_term(p):
         p[0] = p[1]
 
 
-def p_term_ident(p):
+def p_statement_list_statement(p):
     '''
-    term : IDENT
-    '''
-    p[0] = Statement(StatementType.VAR, p.lineno(1), {'variable_name': p[1]})
-
-def p_statement_list(p):
-    '''
-    statement_list : statement NEWLINE
-                   | statement_list statement NEWLINE
+    statement_list : newline statement newline
+                   | statement newline
     '''
     if len(p) == 3:
         p[0] = [p[1]]
     else:
-        p[0] = p[1] + [p[2]]
-    
+        p[0] = [p[2]]
+
+
+
+def p_statement_list_statements(p):
+    '''
+    statement_list : statement_list statement newline
+    '''
+    p[0] = p[1] + [p[2]]
+
 
 def p_block(p):
     '''
@@ -150,10 +164,10 @@ def p_condition_statement(p):
 
 def p_condition(p):
     '''
-    condition : arg EQUAL arg
-              | arg LTHAN arg
-              | arg GTHAN arg
-              | arg NOT_EQUAL arg
+    condition : expression EQUAL expression
+              | expression LTHAN expression
+              | expression GTHAN expression
+              | expression NOT_EQUAL expression
     '''
     p[0] = Condition(p[1], p[2], p[3])
 
@@ -168,7 +182,7 @@ def p_if_statement(p):
 def p_loop_statement(p):
     '''
     loop_statement : LOOP LP condition_statement RP block
-                   | LOOP LP IDENT COLON arg RP block
+                   | LOOP LP IDENT COLON expression RP block
     '''
     if len(p) == 6:
         p[0] = Statement(StatementType.LOOP, p.lineno(1), {'condition': p[3], 'statementlist': p[5]})
@@ -189,38 +203,62 @@ def p_string(p):
     '''
     p[0] = BasicType(p[1])
 
-def p_arg(p):
+def p_expression1(p):
     '''
-    arg : call_func
-        | number
-        | string
+    primary_expression : call_func
+                        | string
+                        | map
+                        | list
+                        | number
     '''
     p[0] = p[1]
 
 
-def p_arg_ident(p):
+def p_expression_ident(p):
     '''
-    arg : IDENT
+    primary_expression : IDENT
     '''
     p[0] = Statement(StatementType.VAR, p.lineno(1), {'variable_name': p[1]})
 
 
 def p_args(p):
     '''
-    args : arg
-         | args COMMA arg
+    args : expression
+         | args COMMA expression
     '''
     if len(p) == 2:
         p[0] = [p[1]]
     else:
         p[0] = p[1] + [p[3]]
 
+def p_map(p):
+    '''
+    map : LC RC
+    '''
+    p[0] = BasicType({})
+
+def p_list(p):
+    '''
+    list : LB RB
+         | LB args RB
+    '''
+    if len(p) == 3:
+        p[0] = BasicType([])
+    else:
+        p[0] = BasicType(p[2])
+
+def p_newline(p):
+    '''
+    newline : NEWLINE
+            | newline NEWLINE
+    '''
+
 
 def p_error(p):
     print("Syntax error at '%s'" % p)
 
 
-data = sys.stdin.read()
+data = sys.stdin.read() + '\n'
 yacc.yacc()
 yacc.parse(data, lexer=lexer)
 

@@ -35,6 +35,10 @@ t_GTHAN   = r'\>'
 t_CONDITION_AND     = r'&&'
 t_CONDITION_OR      = r'\|\|'
 t_COLON   = r':'
+t_LB      = r'\['
+t_RB      = r'\]'
+t_INCREMENT = r'\+\+'
+t_DECREMENT = r'--'
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore = ' \t'
@@ -100,7 +104,6 @@ def t_begin_comment(t):
 
 def t_comment_STRVALUE(t):
     r'[^\n]+'
-    return t
 
 
 def t_comment_end(t):
@@ -114,9 +117,7 @@ def t_begin_commentmulti(t):
 
 
 def t_commentmulti_STRVALUE(t):
-    r'.+'
-    return t
-
+    r'[^\*]+'
 
 def t_commentmulti_end(t):
     r'\*\/'

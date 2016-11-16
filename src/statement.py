@@ -18,7 +18,10 @@ class Statement:
             self.statementlist = params['statementlist']
         elif self.type == StatementType.ASSIGN:
             self.variable_name = params['variable_name']
-            self.expression = params['expression']
+            if 'type' in params:
+                self.assign_type = params['type']
+            else:
+                self.expression = params['expression']
         elif self.type == StatementType.FUNCTION_CALL:
             self.function_name = params['function_name']
             self.function_args = params['args']
@@ -60,15 +63,28 @@ class Statement:
                         statement.eval(context)
 
         elif self.type == StatementType.ASSIGN:
-            if self.expression.type == StatementType.EXPRESSION:
-                expression = self.expression.eval()
-            else:
-                expression = self.expression
+            if hasattr(self, 'assign_type'):
+                if self.assign_type == 'increment':
+                    value = Statement(StatementType.VAR, self.lineno, {'variable_name': self.variable_name}).eval() + 1
+                else:
+                    value = Statement(StatementType.VAR, self.lineno, {'variable_name': self.variable_name}).eval() - 1
 
-            if self.variable_name in context:
-                context[self.variable_name] = expression
+                Statement(StatementType.ASSIGN,
+                          self.lineno,
+                          {
+                              'variable_name': self.variable_name,
+                              'expression': BasicType(value)
+                          }).eval()
             else:
-                storage.variables[self.variable_name] = expression
+                if self.expression.type == StatementType.EXPRESSION:
+                    expression = self.expression.eval()
+                else:
+                    expression = self.expression
+
+                if self.variable_name in context:
+                    context[self.variable_name] = expression
+                else:
+                    storage.variables[self.variable_name] = expression
         elif self.type == StatementType.FUNCTION_CALL:
             args = []
             for arg in self.function_args:

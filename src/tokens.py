@@ -25,4 +25,8 @@ tokens = (
    'FUNCTION',
    'LOOP',
    'COLON',
+   'LB',
+   'RB',
+   'INCREMENT',
+   'DECREMENT',
 )

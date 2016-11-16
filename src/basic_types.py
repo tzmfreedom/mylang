@@ -3,8 +3,11 @@ class BasicType:
         self.type = BasicType
         self.value = value
 
-    def eval(self, context={}):
-        return self.value
+    def eval(self, context=None):
+        if isinstance(self.value, list):
+            return [arg.eval() for arg in self.value]
+        else:
+            return self.value
 
     def set(self, value):
         self.value = value
