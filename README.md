@@ -16,6 +16,11 @@ Language written by python with PLY library.
   - modify number calculation
   - add comment out expression(WIP)
 - day05
+  - increment
+  - decrement
+  - list(WIP)
+  - map(WIP)
+  - comment out
 - day06
 - day07
 - day08
