@@ -5,3 +5,6 @@ class BasicType:
 
     def eval(self, context={}):
         return self.value
+
+    def set(self, value):
+        self.value = value

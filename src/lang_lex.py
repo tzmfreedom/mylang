@@ -8,11 +8,14 @@ from tokens import tokens
 
 states = (
         ('string', 'exclusive'),
+        ('comment', 'exclusive'),
+        ('commentmulti', 'exclusive'),
         )
 
 reserved = {
     'if': 'IF',
-    'function': 'FUNCTION'
+    'function': 'FUNCTION',
+    'loop': 'LOOP'
 }
 
 # Regular expression rules for simple tokens
@@ -31,10 +34,13 @@ t_LTHAN   = r'\<'
 t_GTHAN   = r'\>'
 t_CONDITION_AND     = r'&&'
 t_CONDITION_OR      = r'\|\|'
+t_COLON   = r':'
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore = ' \t'
 t_string_ignore = ''
+t_comment_ignore = ''
+t_commentmulti_ignore = ''
 
 
 def t_IDENT(t):
@@ -86,6 +92,37 @@ def t_string_end(t):
     r'"'
     t.lexer.pop_state()
 
+# Strings
+def t_begin_comment(t):
+    r'\#'
+    t.lexer.push_state('comment')
+
+
+def t_comment_STRVALUE(t):
+    r'[^\n]+'
+    return t
+
+
+def t_comment_end(t):
+    r'\n'
+    t.lexer.pop_state()
+
+# Strings
+def t_begin_commentmulti(t):
+    r'\/\*'
+    t.lexer.push_state('commentmulti')
+
+
+def t_commentmulti_STRVALUE(t):
+    r'.+'
+    return t
+
+
+def t_commentmulti_end(t):
+    r'\*\/'
+    t.lexer.pop_state()
+
+
 
 # Error handling rule
 def t_error(t):
@@ -97,6 +134,13 @@ def t_string_error(t):
     print "Illegal character '%s'" % t.value[0]
     t.skip(1)
 
+def t_comment_error(t):
+    print "Illegal character '%s'" % t.value[0]
+    t.skip(1)
+
+def t_commentmulti_error(t):
+    print "Illegal character '%s'" % t.value[0]
+    t.skip(1)
 
 # Build the lexer
 lexer = lex.lex()

@@ -13,11 +13,25 @@ if (a > 30) {
    echo(fib(10))
 }
 
-function aaa (a, b) {
+function aaa (a, b, d) {
    echo("ccccc")
    echo("bbbb")
    echo(a)
    echo(b)
+   echo(c)
 }
 
-aaa(70, 100)
+aaa(70, 100, 111)
+
+a = 0
+loop (a < 3) {
+  echo("hoge")
+  a = a + 1
+}
+
+echo(i)
+
+loop (i : 3) {
+  echo(i)
+}
+echo(i)

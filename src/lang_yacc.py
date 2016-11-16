@@ -42,6 +42,7 @@ def p_statement(p):
     '''
     statement : assign_statement
               | if_statement
+              | loop_statement
               | call_func
     '''
     p[0] = p[1]
@@ -95,10 +96,7 @@ def p_expression(p):
                | expression SUB term
     '''
     if len(p) == 4:
-        if p[2] == '+':
-            p[0] = p[1] + p[3]
-        elif p[2] == '-':
-            p[0] = p[1] - p[3]
+        p[0] = Statement(StatementType.EXPRESSION, p.lineno(2), {'left': p[1], 'right': p[3], 'op': p[2]})
     else:
         p[0] = p[1]
 
@@ -110,13 +108,16 @@ def p_term(p):
          | term DIV number
     '''
     if len(p) == 4:
-        if p[2] == '*':
-            p[0] = p[1] * p[3]
-        elif p[2] == '/':
-            p[0] = p[1] / p[3]
+        p[0] = Statement(StatementType.EXPRESSION, p.linno(2), {'left': p[1], 'right': p[3], 'op': p[2]})
     else:
         p[0] = p[1]
 
+
+def p_term_ident(p):
+    '''
+    term : IDENT
+    '''
+    p[0] = Statement(StatementType.VAR, p.lineno(1), {'variable_name': p[1]})
 
 def p_statement_list(p):
     '''
@@ -157,11 +158,22 @@ def p_condition(p):
     p[0] = Condition(p[1], p[2], p[3])
 
 
-def p_if(p):
+def p_if_statement(p):
     '''
     if_statement : IF LP condition_statement RP block
     '''
     p[0] = Statement(StatementType.IF, p.lineno(1), {'condition': p[3], 'statementlist': p[5]})
+
+
+def p_loop_statement(p):
+    '''
+    loop_statement : LOOP LP condition_statement RP block
+                   | LOOP LP IDENT COLON arg RP block
+    '''
+    if len(p) == 6:
+        p[0] = Statement(StatementType.LOOP, p.lineno(1), {'condition': p[3], 'statementlist': p[5]})
+    else:
+        p[0] = Statement(StatementType.LOOP, p.lineno(1), {'ident': p[3], 'loop_count': p[5], 'statementlist': p[7]})
 
 
 def p_number(p):

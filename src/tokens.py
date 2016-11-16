@@ -23,4 +23,6 @@ tokens = (
    'GTHAN',
    'NOT_EQUAL',
    'FUNCTION',
+   'LOOP',
+   'COLON',
 )
