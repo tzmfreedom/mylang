@@ -29,4 +29,12 @@ tokens = (
    'RB',
    'INCREMENT',
    'DECREMENT',
+   'BREAK',
+   'CONTINUE',
+   'RETURN',
+   'DOT',
+   'NEW',
+   'CLASS',
+   'PROPERTY',
+   'METHOD',
 )

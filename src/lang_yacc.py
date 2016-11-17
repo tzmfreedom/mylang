@@ -6,10 +6,9 @@ import sys
 from lang_lex import lexer
 from tokens import tokens
 from statement import Statement
-from lang_enums import StatementType
+from lang_enums import StatementType, ResultType
 from condition import Condition
-from basic_types import BasicType
-
+from basic_types import BasicType, Method
 
 # precedence = (
 #     ('left','ADD','SUB'),
@@ -33,6 +32,7 @@ def p_translation_unit(p):
     '''
     translation_unit : statement
                      | define_function
+                     | define_class
     '''
     p[0] = p[1]
 
@@ -43,6 +43,9 @@ def p_statement(p):
               | if_statement
               | loop_statement
               | call_func
+              | continue_statement
+              | break_statement
+              | return_statement
     '''
     p[0] = p[1]
 
@@ -252,6 +255,82 @@ def p_newline(p):
     newline : NEWLINE
             | newline NEWLINE
     '''
+
+def p_break(p):
+    '''
+    break_statement : BREAK
+    '''
+    p[0] = Statement(StatementType.BREAK, p.lineno(1), {})
+
+def p_continue(p):
+    '''
+    continue_statement : CONTINUE
+    '''
+    p[0] = Statement(StatementType.CONTINUE, p.lineno(1), {})
+
+def p_return(p):
+    '''
+    return_statement : RETURN
+                     | RETURN expression
+    '''
+    if len(p) == 2:
+        p[0] = Statement(StatementType.RETURN, p.lineno(1), {'return_value': None})
+    else:
+        p[0] = Statement(StatementType.RETURN, p.lineno(1), {'return_value': p[2]})
+
+def p_class_instanciation(p):
+    '''
+    expression : NEW IDENT LP RP
+               | NEW IDENT LP args RP
+    '''
+    if len(p) == 5:
+        p[0] = Statement(StatementType.NEW_CLASS, p.lineno(1), {'class_name': p[2], 'class_args': {}})
+    else:
+        p[0] = Statement(StatementType.NEW_CLASS, p.lineno(1), {'class_name': p[2], 'class_args': p[4]})
+
+
+def p_instance_method(p):
+    '''
+    call_func : IDENT DOT IDENT LP RP
+              | IDENT DOT IDENT LP args RP
+    '''
+    if len(p) == 6:
+        p[0] = Statement(StatementType.CALL_METHOD, p.lineno(1), {'variable_name': p[1], 'method_name': p[3], 'method_args': {}})
+    else:
+        p[0] = Statement(StatementType.CALL_METHOD, p.lineno(1), {'variable_name': p[1], 'method_name': p[3], 'method_args': p[5]})
+
+
+def p_define_class(p):
+    '''
+    define_class : CLASS IDENT LC newline define_class_properties newline define_methods newline RC
+                 | CLASS IDENT LC newline define_methods newline RC
+    '''
+    if len(p) == 8:
+        p[0] = Statement(StatementType.CLASS_DEFINE, p.lineno(1), {'class_name': p[2], 'properties': [], 'methods': p[5]})
+    else:
+        p[0] = Statement(StatementType.CLASS_DEFINE, p.lineno(1), {'class_name': p[2], 'properties': p[5], 'methods': p[7]})
+
+def p_define_class_properties(p):
+    '''
+    define_class_properties : PROPERTY define_function_args
+    '''
+    p[0] = p[2]
+
+def p_define_method(p):
+    '''
+    define_method : METHOD IDENT LP define_function_args RP block
+    '''
+    p[0] = Method(p[2], p[4], p[6])
+
+def p_define_methods(p):
+    '''
+    define_methods : define_method
+                   | define_methods newline define_method
+    '''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[3]]
 
 
 def p_error(p):

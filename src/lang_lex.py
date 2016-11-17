@@ -15,7 +15,14 @@ states = (
 reserved = {
     'if': 'IF',
     'function': 'FUNCTION',
-    'loop': 'LOOP'
+    'loop': 'LOOP',
+    'break': 'BREAK',
+    'continue': 'CONTINUE',
+    'new': 'NEW',
+    'return': 'RETURN',
+    'class': 'CLASS',
+    'method': 'METHOD',
+    'property': 'PROPERTY',
 }
 
 # Regular expression rules for simple tokens
@@ -39,6 +46,7 @@ t_LB      = r'\['
 t_RB      = r'\]'
 t_INCREMENT = r'\+\+'
 t_DECREMENT = r'--'
+t_DOT       = r'\.'
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore = ' \t'

@@ -6,6 +6,7 @@ class Storage:
         self.variables = {}
         self.native_functions = native_functions
         self.user_functions = {}
+        self.classes = {}
 
 
 def echo(args):

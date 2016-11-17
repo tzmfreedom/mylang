@@ -1,8 +1,9 @@
+echo("aaa")
+/*
 a = 31
 b = 52
 c = 103
 
-/*
 echo(b)
 echo(c)
 echo(a)
@@ -14,28 +15,29 @@ if (a > 30) {
    echo(fib(11))
    echo(fib(10))
 }
-*/
 
 function aaa (a, b, d) {
 
+    return
     echo("ccccc")
-#   echo("bbbb")
-
-   echo(a)
-#   echo(b)
-   echo(c)
-
+    echo("aaaaa")
 }
 
 aaa(70, 100, 111)
 
 a = 0
 loop (a < 3) {
-  echo("hoge")
+  echo("hoge1")
   a = a + 1
+  if (a == 2) {
+    echo("fuga")
+    continue
+  }
+  echo("hoge")
 }
 
-echo(i)
+echo(fib(10))
+
 
 loop (i : 3) {
   echo(i)
@@ -48,5 +50,16 @@ echo(hoge)
 
 a--
 a--
-echo("123")
 echo(a)
+
+a = new Hoge()
+a.foo()
+*/
+class Hoge {
+  method Foo(a, b) {
+    echo(b)
+  }
+}
+
+a = new Hoge()
+a.Foo(1,2)

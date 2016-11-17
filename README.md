@@ -22,6 +22,11 @@ Language written by python with PLY library.
   - map(WIP)
   - comment out
 - day06
+  - return
+  - break
+  - continue
+  - new class(WIP)
+  - call method(WIP)
 - day07
 - day08
 - day09
@@ -40,14 +45,15 @@ Language written by python with PLY library.
 - [ ] del list value with key
 - [x] increment
 - [x] decrement
-- [ ] continue
-- [ ] break
+- [x] continue
+- [x] break
+- [x] return
 - [ ] exit
 - [ ] else statement
 - [ ] import statement
-- [ ] class declaration
-- [ ] method declaration
+- [x] class declaration
+- [x] method declaration
 - [ ] object initialization
-- [ ] call method
+- [x] call method
 - [ ] try catch finally
 - [ ] function object

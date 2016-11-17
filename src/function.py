@@ -1,5 +1,5 @@
 from basic_types import BasicType
-
+from lang_enums import ResultType
 
 context = {}
 
@@ -16,4 +16,7 @@ class Function:
             new_context = context.copy()
             new_context.update({self.arg_names[i]: BasicType(args[i]) for i in xrange(len(self.arg_names))})
             for statement in self.statementlist:
-                statement.eval(new_context)
+                result = statement.eval(new_context)
+                if result.type == ResultType.RETURN:
+                    return result.value
+            return result.value

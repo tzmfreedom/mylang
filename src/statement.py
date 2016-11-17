@@ -1,7 +1,8 @@
-from lang_enums import StatementType
+from lang_enums import StatementType, ResultType
 from storage import storage
-from basic_types import BasicType
+from basic_types import BasicType, Class, ClassType
 from function import Function
+from result import Result
 
 class Statement:
     def __init__(self, type, lineno, params):
@@ -33,6 +34,17 @@ class Statement:
             self.left = params['left']
             self.right = params['right']
             self.op = params['op']
+        elif self.type == StatementType.NEW_CLASS:
+            self.class_name = params['class_name']
+            self.class_args = params['class_args']
+        elif self.type == StatementType.CALL_METHOD:
+            self.variable_name = params['variable_name']
+            self.method_name = params['method_name']
+            self.method_args = params['method_args']
+        elif self.type == StatementType.CLASS_DEFINE:
+            self.class_name = params['class_name']
+            self.methods = params['methods']
+            self.properties = params['properties']
 
     def eval(self, context=None):
         if context is None:
@@ -47,20 +59,32 @@ class Statement:
                 return None
 
         elif self.type == StatementType.IF:
+            result = Result(ResultType.NORMAL, None)
             if self.condition.eval(context):
                 for statement in self.statementlist:
-                    statement.eval(context)
+                    result = statement.eval(context)
+            return result
+
         elif self.type == StatementType.LOOP:
             if hasattr(self, 'condition'):
                 while self.condition.eval(context):
                     for statement in self.statementlist:
-                        statement.eval(context)
+                        result = statement.eval(context)
+                        if result.type == ResultType.BREAK:
+                            return None
+                        elif result.type == ResultType.CONTINUE:
+                            break
             else:
                 context[self.ident] = BasicType(None)
                 for idx in xrange(self.loop_count):
                     context[self.ident].set(idx+1)
                     for statement in self.statementlist:
-                        statement.eval(context)
+                        result = statement.eval(context)
+                        if result.type == ResultType.BREAK:
+                            return None
+                        elif result.type == ResultType.CONTINUE:
+                            break
+            return None
 
         elif self.type == StatementType.ASSIGN:
             if hasattr(self, 'assign_type'):
@@ -75,8 +99,10 @@ class Statement:
                               'variable_name': self.variable_name,
                               'expression': BasicType(value)
                           }).eval()
+                return Result(ResultType.NORMAL, value)
             else:
-                if self.expression.type == StatementType.EXPRESSION:
+                # ToDo: refactoring
+                if self.expression.type == StatementType.EXPRESSION or self.expression.type == StatementType.NEW_CLASS:
                     expression = self.expression.eval()
                 else:
                     expression = self.expression
@@ -85,6 +111,8 @@ class Statement:
                     context[self.variable_name] = expression
                 else:
                     storage.variables[self.variable_name] = expression
+
+                return Result(ResultType.NORMAL, expression)
         elif self.type == StatementType.FUNCTION_CALL:
             args = []
             for arg in self.function_args:
@@ -95,10 +123,11 @@ class Statement:
             if self.function_name in storage.native_functions:
                 return storage.native_functions[self.function_name](args)
             elif self.function_name in storage.user_functions:
-                return storage.user_functions[self.function_name].eval(args, context)
-            return BasicType(None)
+                return BasicType(storage.user_functions[self.function_name].eval(args, context))
+            return Result(ResultType.NORMAL, None)
         elif self.type == StatementType.FUNCTION_DEFINE:
             storage.user_functions[self.function_name] = Function(self.function_args, self.statementlist)
+            return Result(ResultType.NORMAL, None)
         elif self.type == StatementType.EXPRESSION:
             if self.op == '+':
                 return BasicType(self.left.eval() + self.right.eval())
@@ -108,3 +137,24 @@ class Statement:
                 return BasicType(self.left.eval() * self.right.eval())
             elif self.op == '/':
                 return BasicType(self.left.eval() / self.right.eval())
+        elif self.type == StatementType.BREAK:
+            return Result(ResultType.BREAK, None)
+        elif self.type == StatementType.CONTINUE:
+            return Result(ResultType.CONTINUE, None)
+        elif self.type == StatementType.RETURN:
+            return Result(ResultType.RETURN, None)
+        elif self.type == StatementType.NEW_CLASS:
+            klass = storage.classes[self.class_name]
+            return Class(klass, self.class_args)
+        elif self.type == StatementType.CLASS_DEFINE:
+            klass = ClassType(self.class_name, self.properties, self.methods)
+            storage.classes[self.class_name] = klass
+        elif self.type == StatementType.CALL_METHOD:
+            klass = storage.variables[self.variable_name]
+            if self.method_name in klass.type.methods:
+                klass.type.methods[self.method_name].eval(self.method_args)
+            else:
+                print('Method Missing')
+        else:
+            return Result(ResultType.NORMAL, None)
+
