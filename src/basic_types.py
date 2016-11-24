@@ -22,22 +22,30 @@ class ClassType:
                 self.methods[method.name] = method
 
 class Method:
-    def __init__(self, method_name, args, statementlist):
+    def __init__(self, method_name, arg_names, statementlist):
         self.name = method_name
-        self.args = args
+        self.arg_names = arg_names
         self.statementlist = statementlist
 
-    def eval(self, args, context={}):
+    def eval(self, args, context=None):
         if len(args) != len(args):
-            pass
+            print("Method Argument Mismatch!!")
         else:
+            if context is None:
+                new_context = {}
+            else:
+                new_context = context.copy()
+            new_context.update({self.arg_names[i]: BasicType(args[i]) for i in xrange(len(args))})
             for statement in self.statementlist:
-                statement.eval()
+                statement.eval(new_context)
 
 class Class:
     def __init__(self, class_type, args):
         self.type = class_type
-        self.args = args
+        self.properties = {property: None for property in self.type.properties}
+
+        if 'init' in self.type.methods:
+            self.type.methods['init'].eval(args)
 
 
     def eval(self):

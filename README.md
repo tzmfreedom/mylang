@@ -28,6 +28,8 @@ Language written by python with PLY library.
   - new class(WIP)
   - call method(WIP)
 - day07
+  - new class
+  - class constructor
 - day08
 - day09
 - day10

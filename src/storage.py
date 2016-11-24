@@ -1,6 +1,5 @@
 from basic_types import BasicType
 
-
 class Storage:
     def __init__(self, native_functions={}):
         self.variables = {}
@@ -9,13 +8,20 @@ class Storage:
         self.classes = {}
 
 
-def echo(args):
-    print("echo {0}".format(args[0]))
-    return BasicType(None)
+class NativeFunction:
+    def eval(self, args, context):
+        raise Exception('No Action')
 
 
-def fib_main(args):
-    return BasicType(fib(args[0]))
+class Echo(NativeFunction):
+    def eval(self, args, context):
+        print("echo {0}".format(args[0]))
+        return BasicType(None)
+
+
+class Fib(NativeFunction):
+    def fib_main(args):
+        return BasicType(fib(args[0]))
 
 
 def fib(n):
@@ -24,6 +30,6 @@ def fib(n):
     return fib(n-1) + fib(n-2)
 
 storage = Storage({
-    'echo': echo,
-    'fib': fib_main,
+    'echo': Echo(),
+    'fib': Fib(),
 })

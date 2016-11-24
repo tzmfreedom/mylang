@@ -56,10 +56,15 @@ a = new Hoge()
 a.foo()
 */
 class Hoge {
-  method Foo(a, b) {
+  property hoge, fuga
+
+  method init(a) {
+    echo("bbb")
+  }
+  method foo(a, b) {
     echo(b)
   }
 }
 
 a = new Hoge()
-a.Foo(1,2)
+a.foo(1,2)

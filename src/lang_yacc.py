@@ -319,8 +319,12 @@ def p_define_class_properties(p):
 def p_define_method(p):
     '''
     define_method : METHOD IDENT LP define_function_args RP block
+                  | METHOD IDENT LP RP block
     '''
-    p[0] = Method(p[2], p[4], p[6])
+    if len(p) == 5:
+        p[0] = Method(p[2], [], p[5])
+    else:
+        p[0] = Method(p[2], p[4], p[6])
 
 def p_define_methods(p):
     '''

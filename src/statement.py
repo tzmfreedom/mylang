@@ -4,6 +4,17 @@ from basic_types import BasicType, Class, ClassType
 from function import Function
 from result import Result
 
+
+def strip_args(param_args, context):
+    args = []
+    for arg in param_args:
+        if arg.type == StatementType.FUNCTION_CALL:
+            args.append(arg.eval(context).eval(context))
+        else:
+            args.append(arg.eval(context))
+    return args
+
+
 class Statement:
     def __init__(self, type, lineno, params):
         self.type = type
@@ -114,14 +125,9 @@ class Statement:
 
                 return Result(ResultType.NORMAL, expression)
         elif self.type == StatementType.FUNCTION_CALL:
-            args = []
-            for arg in self.function_args:
-                if arg.type == StatementType.FUNCTION_CALL:
-                    args.append(arg.eval(context).eval(context))
-                else:
-                    args.append(arg.eval(context))
+            args = strip_args(self.function_args, context)
             if self.function_name in storage.native_functions:
-                return storage.native_functions[self.function_name](args)
+                return storage.native_functions[self.function_name].eval(args, context)
             elif self.function_name in storage.user_functions:
                 return BasicType(storage.user_functions[self.function_name].eval(args, context))
             return Result(ResultType.NORMAL, None)
@@ -150,9 +156,10 @@ class Statement:
             klass = ClassType(self.class_name, self.properties, self.methods)
             storage.classes[self.class_name] = klass
         elif self.type == StatementType.CALL_METHOD:
+            args = strip_args(self.method_args, context)
             klass = storage.variables[self.variable_name]
             if self.method_name in klass.type.methods:
-                klass.type.methods[self.method_name].eval(self.method_args)
+                klass.type.methods[self.method_name].eval(args, context)
             else:
                 print('Method Missing')
         else:
