@@ -17,15 +17,20 @@ from basic_types import BasicType, Method
 
 statementlist = []
 
+def p_main(p):
+    '''
+    main : newline_or_blank translation_units newline_or_blank
+    '''
+
 def p_translation_units(p):
     '''
-    translation_units : translation_unit newline
-                      | translation_units translation_unit newline
+    translation_units : translation_unit
+                      | translation_units newline translation_unit
     '''
-    if len(p) == 3:
+    if len(p) == 2:
         statementlist.append(p[1])
     else:
-        statementlist.append(p[2])
+        statementlist.append(p[3])
 
 
 def p_translation_unit(p):
@@ -130,32 +135,31 @@ def p_term(p):
 
 def p_statement_list_statement(p):
     '''
-    statement_list : newline statement newline
-                   | statement newline
+    statement_list : statement
+                   | statement_list newline statement
     '''
-    if len(p) == 3:
+    if len(p) == 2:
         p[0] = [p[1]]
     else:
-        p[0] = [p[2]]
+        p[0] = p[1] + [p[3]]
 
-
-
-def p_statement_list_statements(p):
+def p_empty(p):
     '''
-    statement_list : statement_list statement newline
+    empty :
     '''
-    p[0] = p[1] + [p[2]]
+
+def p_newline_or_blank(p):
+    '''
+    newline_or_blank : newline
+                     | empty
+    '''
 
 
 def p_block(p):
     '''
-    block : LC statement_list RC
-          | LC NEWLINE statement_list RC
+    block : LC newline_or_blank statement_list newline_or_blank RC
     '''
-    if len(p) == 4:
-        p[0] = p[2]
-    else:
-        p[0] = p[3]
+    p[0] = p[3]
 
 ## Todo: Multiple condition
 def p_condition_statement(p):
@@ -178,8 +182,18 @@ def p_condition(p):
 def p_if_statement(p):
     '''
     if_statement : IF LP condition_statement RP block
+                 | IF LP condition_statement RP block ELSE statement
     '''
-    p[0] = Statement(StatementType.IF, p.lineno(1), {'condition': p[3], 'statementlist': p[5]})
+    if len(p) == 6:
+        p[0] = Statement(StatementType.IF, p.lineno(1), {'condition': p[3], 'statementlist': p[5]})
+    else:
+        p[0] = Statement(StatementType.IF, p.lineno(1), {'condition': p[3], 'statementlist': p[5], 'else_statementlist': [p[7]]})
+
+def p_if_statement_else(p):
+    '''
+    if_statement : IF LP condition_statement RP block ELSE block
+    '''
+    p[0] = Statement(StatementType.IF, p.lineno(1), {'condition': p[3], 'statementlist': p[5], 'else_statementlist': p[7]})
 
 
 def p_loop_statement(p):
@@ -341,7 +355,7 @@ def p_error(p):
     print("Syntax error at '%s'" % p)
 
 
-data = sys.stdin.read() + '\n'
+data = sys.stdin.read()
 yacc.yacc()
 yacc.parse(data, lexer=lexer)
 

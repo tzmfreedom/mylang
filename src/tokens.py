@@ -37,4 +37,5 @@ tokens = (
    'CLASS',
    'PROPERTY',
    'METHOD',
+   'ELSE',
 )

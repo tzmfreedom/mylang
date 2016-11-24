@@ -31,6 +31,8 @@ Language written by python with PLY library.
   - new class
   - class constructor
 - day08
+  - else statement
+  - modify statement translation
 - day09
 - day10
 
@@ -51,11 +53,12 @@ Language written by python with PLY library.
 - [x] break
 - [x] return
 - [ ] exit
-- [ ] else statement
+- [x] else statement
 - [ ] import statement
 - [x] class declaration
 - [x] method declaration
-- [ ] object initialization
+- [x] object initialization
 - [x] call method
 - [ ] try catch finally
 - [ ] function object
+- [ ] class properties

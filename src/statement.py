@@ -24,6 +24,8 @@ class Statement:
         elif self.type == StatementType.IF or (self.type == StatementType.LOOP and 'condition' in params):
             self.condition = params['condition']
             self.statementlist = params['statementlist']
+            if 'else_statementlist' in params:
+                self.else_statementlist = params['else_statementlist']
         elif self.type == StatementType.LOOP and 'ident' in params:
             self.ident = params['ident']
             self.loop_count = int(params['loop_count'].eval())
@@ -73,6 +75,9 @@ class Statement:
             result = Result(ResultType.NORMAL, None)
             if self.condition.eval(context):
                 for statement in self.statementlist:
+                    result = statement.eval(context)
+            elif hasattr(self, 'else_statementlist'):
+                for statement in self.else_statementlist:
                     result = statement.eval(context)
             return result
 

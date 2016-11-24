@@ -23,6 +23,7 @@ reserved = {
     'class': 'CLASS',
     'method': 'METHOD',
     'property': 'PROPERTY',
+    'else': 'ELSE',
 }
 
 # Regular expression rules for simple tokens

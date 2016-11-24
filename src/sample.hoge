@@ -66,5 +66,13 @@ class Hoge {
   }
 }
 
+a = 9
+if (a > 30) {
+   echo("30 over")
+} else if (a < 10) {
+   echo("less than 10")
+} else if (a < 20) {
+   echo("less than 20")
+}
 a = new Hoge()
 a.foo(1,2)
