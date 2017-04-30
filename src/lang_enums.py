@@ -1,5 +1,4 @@
 import enum
 
-StatementType = enum.Enum("StatementType", "IF LOOP ASSIGN FUNCTION_CALL FUNCTION_DEFINE VAR EXPRESSION BREAK RETURN CONTINUE NEW_CLASS CALL_METHOD CLASS_DEFINE")
-
-ResultType = enum.Enum("ResultType", "NORMAL RETURN BREAK CONTINUE")
+StatementType = enum.Enum("StatementType",
+                          "ASSIGN VAR EXPRESSION")
